@@ -1,42 +1,53 @@
-// Import d'Express
-const express = require('express');
+/* Import des modules necessaires */
+const express = require("express");
+// const sauceRoutes = require("./routes/sauce.routes");
+const userRoutes = require("./routes/user.routes");
+const path = require("path");
 
-// Accès à la req
+/* Initialisation de l'API */
+const app = express();
+
+app.use(express.urlencoded({ extended: true }))
+
 app.use(express.json());
 
-// Import de mongoDB
-const mongoose = require('mongoose');
-
-// Import du package body-parser (parse automatiquement les requêtes en JSON)
-const bodyParser = require('body-parser');
-
-// Import des routes (CRUD)
-const sauceRoutes = require('./routes/sauce');
-
-// Import des routes utilisateur
-const userRoutes = require('./routes/user');
-
-// Mise en place du chemin d'accès à un fichier téléchargé par l'utilisateur
-const path = require('path');
-
-// Reponse simple afin de verif que tout marche correctement
-app.use((req, res) => {
-    res.json({ message: 'Votre requête a bien été reçue !' });
-});
-
-module.exports = app;
-
-// Ajout des Middlewares d'autorisations
+/* Mise en place reponses headers */
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, x-access-token, role, Content, Accept, Content-Type, Authorization"
+    );
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    );
     next();
 });
 
-//Middleware de gestion d'image
-app.use('/images', express.static(path.join(__dirname, 'images')));
 
-//Gestion des routes utilisateurs
-app.use('/api/sauces', sauceRoutes);
-app.use('/api/auth', userRoutes);
+/* Securite en tete */
+const helmet = require("helmet");
+
+app.use(helmet());
+
+
+/* RateLimit */
+const rateLimit = require("express-rate-limit");
+
+app.use(
+    rateLimit({
+        windowMs: 5 * 60 * 1000,
+        max: 100,
+        message:
+            "Vous avez effectué plus de 100 requêtes dans une limite de 15 minutes!",
+        headers: true,
+    })
+);
+
+/* Mise en place du routage */
+app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/api/auth", userRoutes);
+// app.use("/api/sauces", sauceRoutes);
+
+module.exports = app;
