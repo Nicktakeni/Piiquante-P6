@@ -1,6 +1,6 @@
 /* Import des modules necessaires */
 const express = require("express");
-// const sauceRoutes = require("./routes/sauce.routes");
+const sauceRoutes = require("./routes/sauce.routes");
 const userRoutes = require("./routes/user.routes");
 const path = require("path");
 
@@ -25,12 +25,10 @@ app.use((req, res, next) => {
     next();
 });
 
-
 /* Securite en tete */
 const helmet = require("helmet");
 
 app.use(helmet());
-
 
 /* RateLimit */
 const rateLimit = require("express-rate-limit");
@@ -48,6 +46,6 @@ app.use(
 /* Mise en place du routage */
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/api/auth", userRoutes);
-// app.use("/api/sauces", sauceRoutes);
+app.use("/api/sauces", sauceRoutes);
 
 module.exports = app;

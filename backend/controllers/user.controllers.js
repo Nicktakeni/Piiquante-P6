@@ -6,7 +6,7 @@ const dotenv = require("dotenv").config({ encoding: "latin1" });
 
 /* Controleur inscription */
 exports.signup = (req, res, next) => {
-    // Hashage du mot de passe utilisateur
+    // Hashage du mot de passe utilisateur 
     bcrypt
         .hash(req.body.password, parseInt(process.env.BCRYPT_SALT_ROUND))
         .then((hash) => {
